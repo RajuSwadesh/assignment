@@ -80,6 +80,18 @@ const Login = ({navigation}) => {
             },
           ]);
         }
+        if (error.code === 'auth/wrong-password') {
+          console.log('That email address is invalid!');
+          Alert.alert(
+            'Warning',
+            'The password is invalid or the user does not have a password.!',
+            [
+              {
+                text: 'OK',
+              },
+            ],
+          );
+        }
         setPresentLoading(false);
       });
   };

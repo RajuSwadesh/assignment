@@ -11,9 +11,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import ImagePicker from 'react-native-image-crop-picker';
+import storage from '@react-native-firebase/storage';
 
 const SignUp = ({navigation}) => {
   const [firstName, setFirstName] = useState(null);
@@ -21,6 +24,8 @@ const SignUp = ({navigation}) => {
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [presentLoading, setPresentLoading] = useState(false);
+  const [image, setImage] = useState(null)
+
   const clickHandler = () => {
     console.log('ok');
     navigation.navigate('login');
@@ -31,7 +36,7 @@ const SignUp = ({navigation}) => {
     if (
       (firstName === null && lastName === null) ||
       email === null ||
-      password === null
+      password === null || image === null
     ) {
       Alert.alert('Warning', 'Fields should not be blank', [
         {
@@ -53,10 +58,16 @@ const SignUp = ({navigation}) => {
     }
   };
 
-  const signUp = () => {
+  const signUp =async () => {
     setPresentLoading(true);
     console.log('email', email);
     console.log('password', password);
+    const uploaduri = image
+    const fileUpload = uploaduri?.substring(uploaduri.lastIndexOf('/') + 1);
+    // firestore()
+    //    .catch((e) => console.log('uploading image error => ', e));
+    await storage().ref(fileUpload).putFile(image)
+  const url =await storage().ref(fileUpload).getDownloadURL();
     auth()
       .createUserWithEmailAndPassword(email, password)
       .then(res => {
@@ -71,6 +82,7 @@ const SignUp = ({navigation}) => {
             password: password,
             uid: res?.user?._user?.uid,
             fingerPrint: '',
+            image:url
           })
           .then(response => {
             console.log('success', response);
@@ -108,6 +120,14 @@ const SignUp = ({navigation}) => {
         setPresentLoading(false);
       });
   };
+  const onSelectimage = async () => {
+    ImagePicker.openPicker({
+      cropping: false,
+    }).then(image => {
+      console.log('image======>', image);
+      setImage(image.path)
+    });
+  }
   return (
     <View style={styles.root}>
       <SafeAreaView style={styles.safeAreaView}>
@@ -117,6 +137,14 @@ const SignUp = ({navigation}) => {
           <Text style={styles.title}>Register Form</Text>
           <View style={{height: 8}} />
           <Text style={styles.subtitle}>Sign up to your account</Text>
+
+            <Image style={{height:130,width:130,alignSelf:'center',borderRadius:10,marginTop:10}} source={image ? { uri: image } : require('../assets/images/user.png')} />
+        <TouchableOpacity onPress={onSelectimage}>
+          <Image style={{height:35,width:35,borderRadius:15,position:'absolute',top:-35,right:100}} source={require('../assets/images/editIcon.png')} />
+          {/* <Text style={{color:'red'}}>
+            hiiii
+          </Text> */}
+        </TouchableOpacity>
           <View style={{height: 32}} />
           <Pressable>
             <View style={styles.form}>

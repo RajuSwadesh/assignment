@@ -2,6 +2,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import Home from '../screen/Home';
 import Setting from '../screen/Setting';
+import Profile from '../screen/Profile';
 const RootStackNavigation = () => {
   const Stack = createNativeStackNavigator();
 
@@ -13,6 +14,15 @@ const RootStackNavigation = () => {
         options={{
           headerShown: false,
           title: 'Home',
+          headerStyle: {backgroundColor: 'golden'},
+        }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          headerShown: false,
+          title: 'Profile',
           headerStyle: {backgroundColor: 'golden'},
         }}
       />

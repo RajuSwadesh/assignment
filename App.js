@@ -11,7 +11,7 @@ import {Platform, StatusBar} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import AuthNavigation from './src/navigation/AuthNavigation';
-
+import { MenuProvider } from 'react-native-popup-menu';
 const App = () => {
   return (
     <SafeAreaProvider>
@@ -20,9 +20,11 @@ const App = () => {
       ) : (
         <StatusBar backgroundColor={'#000'} barStyle="light-content" />
       )}
+      <MenuProvider>
       <NavigationContainer>
         <AuthNavigation />
       </NavigationContainer>
+      </MenuProvider>
     </SafeAreaProvider>
   );
 };

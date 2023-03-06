@@ -7,7 +7,6 @@ import RootStackNavigation from './RootStackNavigation';
 import auth from '@react-native-firebase/auth';
 import {ActivityIndicator, View} from 'react-native';
 import DigitalLogin from '../screen/DigitalLogin';
-import BioMetricLogin from '../screen/BioMetricLogin';
 const AuthNavigation = () => {
   const [presentLoading, setPresentLoading] = useState(true);
   let userStatus = useRef();
@@ -32,11 +31,6 @@ const AuthNavigation = () => {
       <Stack.Screen
         name="digital-login"
         component={DigitalLogin}
-        options={{headerShown: false}}
-      />
-       <Stack.Screen
-        name="Bio-Metric"
-        component={BioMetricLogin}
         options={{headerShown: false}}
       />
       <Stack.Screen

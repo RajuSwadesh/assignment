@@ -58,6 +58,7 @@ const Setting = ({navigation}) => {
           .catch(error => {
             // Failure code
             console.log('error', error);
+            setSwitchOn(false);
           });
       }
     }
@@ -75,26 +76,23 @@ const Setting = ({navigation}) => {
         console.log('userName', userName);
         console.log('userPassword', userPassword);
         if (res) {
-          Keychain.setGenericPassword(userName, userPassword)
-            .then(resp => {
-              console.log('keychain success set', resp);
-              firestore()
-                .collection('users')
-                .doc(docId)
-                .update({
-                  fingerprint: resp?.storage,
-                })
-                .then(() => {
-                  console.log('User updated!');
-                  Alert.alert('Success', 'Fingerprint set sucessfully', [
+          Keychain.getGenericPassword() // Retrieve the credentials from the keychain
+            .then(credentials => {
+              console.log('credentials', credentials);
+              if (credentials !== false) {
+                setSwitchOn(false);
+                Alert.alert(
+                  'Warning',
+                  'Your fingerprint is already enrolled in another account!',
+                  [
                     {
                       text: 'OK',
                     },
-                  ]);
-                });
-            })
-            .catch(err => {
-              console.log('keychain fail set', err);
+                  ],
+                );
+              } else {
+                setFingerPrint();
+              }
             });
         }
         //   AlertIOS.alert('Authenticated Successfully');
@@ -102,11 +100,36 @@ const Setting = ({navigation}) => {
       .catch(error => {
         console.log('error', error);
         //   AlertIOS.alert('Authentication Failed');
+        setSwitchOn(false);
         Alert.alert('Warning', 'Authentication Failed!', [
           {
             text: 'OK',
           },
         ]);
+      });
+  };
+
+  const setFingerPrint = () => {
+    Keychain.setGenericPassword(userName, userPassword)
+      .then(resp => {
+        console.log('keychain success set', resp);
+        firestore()
+          .collection('users')
+          .doc(docId)
+          .update({
+            fingerPrint: resp?.storage,
+          })
+          .then(() => {
+            console.log('User updated!');
+            Alert.alert('Success', 'Fingerprint set sucessfully', [
+              {
+                text: 'OK',
+              },
+            ]);
+          });
+      })
+      .catch(err => {
+        console.log('keychain fail set', err);
       });
   };
 
@@ -118,8 +141,8 @@ const Setting = ({navigation}) => {
         setDocId(documentSnapshot.id);
         setUserName(documentSnapshot.data()?.email);
         setUserPassword(documentSnapshot.data()?.password);
-        setSwitchOn(documentSnapshot.data()?.fingerprint ? true : false);
-        enableFingerPrint.current = documentSnapshot.data()?.fingerprint
+        setSwitchOn(documentSnapshot.data()?.fingerPrint ? true : false);
+        enableFingerPrint.current = documentSnapshot.data()?.fingerPrint
           ? true
           : false;
       }
@@ -141,7 +164,7 @@ const Setting = ({navigation}) => {
             .collection('users')
             .doc(docId)
             .update({
-              fingerprint: '',
+              fingerPrint: '',
             })
             .then(res => {
               console.log('reset done', res);
@@ -184,7 +207,13 @@ const Setting = ({navigation}) => {
           </View>
         </View>
         <View style={styles.finerPrint}>
-          <Text style={{flex: 1, paddingLeft: 20, color: '#fff'}}>
+          <Text
+            style={{
+              flex: 1,
+              paddingLeft: 20,
+              color: '#000',
+              fontWeight: '400',
+            }}>
             Enable Finger Print
           </Text>
           <Switch
@@ -192,9 +221,9 @@ const Setting = ({navigation}) => {
             onValueChange={resp => {
               setSwitchOn(!switchOn);
               console.log('switchOn', resp);
-                if (resp === false) {
-                  removeFingerPrint();
-                }
+              if (resp === false) {
+                removeFingerPrint();
+              }
             }}
           />
         </View>
@@ -207,7 +236,7 @@ export default Setting;
 
 const styles = StyleSheet.create({
   root: {
-    backgroundColor: '#000000',
+    backgroundColor: '#F7F7F7',
     flex: 1,
   },
   safeAreaView: {
@@ -219,6 +248,6 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     // justifyContent: 'space-around',
-    backgroundColor: 'rgba(235, 235, 245, 0.6)',
+    backgroundColor: '#FFFFFF',
   },
 });
